@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using WebAPISample.Model.DBContext;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,7 +14,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<MyDBContext>(opt => opt.UseSqlServer(connectionString));
-builder.Services.AddApiVersioning()
+builder.Services.AddApiVersioning(opt => {
+    opt.AssumeDefaultVersionWhenUnspecified = true;
+    opt.DefaultApiVersion = new ApiVersion(1, 0);
+    opt.ApiVersionReader = ApiVersionReader.Combine(
+        new QueryStringApiVersionReader("api-version"),
+        new HeaderApiVersionReader("header-ver"),
+        new MediaTypeApiVersionReader("ver"));
+});
 
 var app = builder.Build();
 
