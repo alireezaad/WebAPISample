@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using WebAPISample.Model;
 using WebAPISample.Model.DBContext;
+using WebAPISample.Model.ViewModel;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -14,54 +16,109 @@ namespace WebAPISample.Controllers
 
         public TwittController(TwittRepository twittRepository)
         {
-                db = twittRepository;
+            db = twittRepository;
         }
 
         // GET: api/<TwittController>
         [HttpGet]
-        public async Task<IEnumerable<Twitt>> GetAll()
+        public IActionResult GetAll()
         {
-            return await db.GetAll();
+            try
+            {
+                return Ok(db.GetAll());
+            }
+            catch (Exception e)
+            {
+                return NotFound(e.Message);
+            }
         }
 
         // GET api/<TwittController>/5
         [HttpGet("{id}")]
-        public async Task<Twitt> Get(int id)
+        public IActionResult Get(int id)
         {
-            return await db.Get(id);
+            try
+            {
+                var twitt = db.Get(id);
+                return Ok(twitt);
+            }
+            catch (Exception e)
+            {
+
+                return StatusCode(500, e.Message);
+            }
         }
 
         // POST api/<TwittController>
-        [HttpPost]
-        public void Post([FromBody] string value)
+        [HttpPost("{viewModel}")]
+        public IActionResult Post([FromBody]  TwittViewModel viewModel)
         {
-            Twitt twitt = new Twitt()
+            try
             {
-                Body = value
-            };
-            db.Add(twitt);
-            db.SaveChanges();
+                var twitt = db.Add(viewModel);
+                db.SaveChanges();
+                //return CreatedAtAction(nameof(Get),"Twitt", new { Id = twitt.Id }, twitt);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
         }
 
         // PUT api/<TwittController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPut("{viewModel}")]
+        public IActionResult Put([FromBody] TwittViewModel viewModel)
         {
-            Twitt twitt = new Twitt() { 
+            try
+            {
 
-                Id = id,
-                Body = value 
-            };
-            db.Update(twitt);
-            db.SaveChanges();
+                var twitt = db.Update(viewModel);
+                db.SaveChanges();
+                return Ok(twitt);
+
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
         }
 
         // DELETE api/<TwittController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IActionResult Delete(int id)
         {
-            db.Delete(id);
-            db.SaveChanges();
+            try
+            {
+
+                db.Delete(id);
+                db.SaveChanges();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpDelete("{viewModel}")]
+        public IActionResult Delete([FromBody] TwittViewModel viewModel)
+        {
+            try
+            {
+
+                db.Delete(viewModel);
+                db.SaveChanges();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
         }
     }
 }

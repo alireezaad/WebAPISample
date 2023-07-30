@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Server.IIS.Core;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Server.IIS.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using WebAPISample.Model.DBContext;
+using WebAPISample.Model.ViewModel;
 
 namespace WebAPISample.Model
 {
@@ -14,46 +17,61 @@ namespace WebAPISample.Model
             this.db = db;
         }
 
-        public async Task<IEnumerable<Twitt>> GetAll()
-        {
-            return await db.twitts.ToListAsync();
-        }
-        public async Task<Twitt> Get(int id)
-        {
-            return await db.twitts.FirstOrDefaultAsync(t => t.Id == id);
-        }
-        public async Task<bool> Add(Twitt twitt)
+        public IEnumerable<Twitt> GetAll()
         {
             try
             {
-                db.twitts.AddAsync(twitt);
+                return db.twitts.ToList();
+            }
+            catch (Exception) { throw; }
+        }
+        public Twitt Get(int id)
+        {
+            try
+            {
+                return db.twitts.FirstOrDefault(t => t.Id == id);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        public bool Add(TwittViewModel twittModel)
+        {
+            try
+            {
+                var twitt = new Twitt() { Body = twittModel.Body };
+                db.twitts.Add(twitt);
                 return true;
             }
             catch (Exception)
             {
                 return false;
+                throw;
             }
         }
 
-        public bool Update(Twitt twitt)
+        public Twitt Update(TwittViewModel twittModel)
         {
             try
             {
+                var twitt = new Twitt() { Id = twittModel.Id, Body = twittModel.Body };
                 db.twitts.Update(twitt);
-                return true;
+                return twitt;
+                
             }
             catch (Exception)
             {
-
-                return false;
+                throw;
             }
 
         }
-        public async Task<bool> Delete(int id)
+        public bool Delete(int id)
         {
             try
             {
-                var twitt =await Get(id);
+                var twitt = Get(id);
                 db.twitts.Remove(twitt);
                 return true;
             }
@@ -61,20 +79,23 @@ namespace WebAPISample.Model
             {
 
                 return false;
+                throw;
+
             }
         }
 
-        public bool Delete(Twitt twitt)
+        public bool Delete(TwittViewModel twittModel)
         {
             try
             {
+                var twitt = new Twitt() { Id = twittModel.Id, Body = twittModel.Body };
                 db.twitts.Remove(twitt);
                 return true;
             }
             catch (Exception)
             {
-
                 return false;
+                throw;
             }
         }
         public void SaveChanges()

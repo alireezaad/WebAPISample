@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace WebAPISample.Controllers
 {
     [ApiController]
-    //[Route("[controller]")]
+    [Route("[controller]")]
     [Route("api/version{version:apiVersion}/[controller]")]
     [ApiVersion("1.1")]
     public class WeatherForecastController : ControllerBase
