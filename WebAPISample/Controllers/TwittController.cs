@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using WebAPISample.Model;
 using WebAPISample.Model.DBContext;
 using WebAPISample.Model.ViewModel;
+using WebAPISample.Services;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -12,9 +12,9 @@ namespace WebAPISample.Controllers
     [ApiController]
     public class TwittController : ControllerBase
     {
-        private readonly TwittRepository db;
+        private readonly ITwittRepsitory db;
 
-        public TwittController(TwittRepository twittRepository)
+        public TwittController(ITwittRepsitory twittRepository)
         {
             db = twittRepository;
         }
@@ -25,7 +25,8 @@ namespace WebAPISample.Controllers
         {
             try
             {
-                return Ok(db.GetAll());
+                var allTwitts = db.GetAll();
+                return Ok(allTwitts.ToList());
             }
             catch (Exception e)
             {
@@ -50,12 +51,14 @@ namespace WebAPISample.Controllers
         }
 
         // POST api/<TwittController>
-        [HttpPost("{viewModel}")]
-        public IActionResult Post([FromBody]  TwittViewModel viewModel)
+        //[HttpPost("{viewModel}")]
+        [HttpPost]
+        public IActionResult Post([FromBody]  string body)
         {
             try
             {
-                var twitt = db.Add(viewModel);
+                TwittViewModel twitt = new TwittViewModel() { Body = body };
+                db.Add(twitt);
                 db.SaveChanges();
                 //return CreatedAtAction(nameof(Get),"Twitt", new { Id = twitt.Id }, twitt);
                 return Ok();
@@ -68,15 +71,15 @@ namespace WebAPISample.Controllers
         }
 
         // PUT api/<TwittController>/5
-        [HttpPut("{viewModel}")]
+        [HttpPut]
         public IActionResult Put([FromBody] TwittViewModel viewModel)
         {
             try
             {
 
-                var twitt = db.Update(viewModel);
+                db.Update(viewModel);
                 db.SaveChanges();
-                return Ok(twitt);
+                return Ok();
 
             }
             catch (Exception e)
@@ -104,7 +107,7 @@ namespace WebAPISample.Controllers
             }
         }
 
-        [HttpDelete("{viewModel}")]
+        [HttpDelete]
         public IActionResult Delete([FromBody] TwittViewModel viewModel)
         {
             try

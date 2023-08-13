@@ -3,25 +3,26 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Server.IIS.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using WebAPISample.Model;
 using WebAPISample.Model.DBContext;
 using WebAPISample.Model.ViewModel;
 
-namespace WebAPISample.Model
+namespace WebAPISample.Services
 {
-    public class TwittRepository : IDisposable
+    public class TwittRepository : IDisposable, ITwittRepsitory
     {
-        private readonly MyDBContext db;
+        private readonly MyDBContext _service;
 
         public TwittRepository(MyDBContext db)
         {
-            this.db = db;
+            this._service = db;
         }
 
         public IEnumerable<Twitt> GetAll()
         {
             try
             {
-                return db.twitts.ToList();
+                return _service.twitts.ToList();
             }
             catch (Exception) { throw; }
         }
@@ -29,37 +30,32 @@ namespace WebAPISample.Model
         {
             try
             {
-                return db.twitts.FirstOrDefault(t => t.Id == id);
+                return _service.twitts.FirstOrDefault(t => t.Id == id);
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
-        public bool Add(TwittViewModel twittModel)
+        public void Add(TwittViewModel twittModel)
         {
             try
             {
                 var twitt = new Twitt() { Body = twittModel.Body };
-                db.twitts.Add(twitt);
-                return true;
+                _service.twitts.Add(twitt);
             }
             catch (Exception)
             {
-                return false;
                 throw;
             }
         }
 
-        public Twitt Update(TwittViewModel twittModel)
+        public void Update(TwittViewModel twittModel)
         {
             try
             {
                 var twitt = new Twitt() { Id = twittModel.Id, Body = twittModel.Body };
-                db.twitts.Update(twitt);
-                return twitt;
-                
+                _service.twitts.Update(twitt);
             }
             catch (Exception)
             {
@@ -67,47 +63,41 @@ namespace WebAPISample.Model
             }
 
         }
-        public bool Delete(int id)
+        public void Delete(int id)
         {
             try
             {
                 var twitt = Get(id);
-                db.twitts.Remove(twitt);
-                return true;
+                _service.twitts.Remove(twitt);
             }
             catch (Exception)
             {
-
-                return false;
                 throw;
-
             }
         }
 
-        public bool Delete(TwittViewModel twittModel)
+        public void Delete(TwittViewModel twittModel)
         {
             try
             {
                 var twitt = new Twitt() { Id = twittModel.Id, Body = twittModel.Body };
-                db.twitts.Remove(twitt);
-                return true;
+                _service.twitts.Remove(twitt);
             }
             catch (Exception)
             {
-                return false;
                 throw;
             }
         }
         public void SaveChanges()
         {
-            db.SaveChanges();
+            _service.SaveChanges();
         }
 
         public void Dispose()
         {
-            if (db != null) 
-            { 
-                db.Dispose();
+            if (_service != null)
+            {
+                _service.Dispose();
             }
         }
     }

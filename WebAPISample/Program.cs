@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using WebAPISample.Model;
 using WebAPISample.Model.DBContext;
+using WebAPISample.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,9 +12,12 @@ var connectionString = builder.Configuration.GetConnectionString("MyApiConnectio
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+builder.Services.AddScoped<ITwittRepsitory,TwittRepository>();
+builder.Services.AddSingleton<MyDBContext>();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<TwittRepository>();
 builder.Services.AddDbContext<MyDBContext>(opt => opt.UseSqlServer(connectionString));
 builder.Services.AddApiVersioning(opt => {
     opt.AssumeDefaultVersionWhenUnspecified = true;
