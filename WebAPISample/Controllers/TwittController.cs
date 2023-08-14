@@ -18,15 +18,19 @@ namespace WebAPISample.Controllers
         {
             db = twittRepository;
         }
-
+        public TwittController()
+        {
+                
+        }
         // GET: api/<TwittController>
         [HttpGet]
         public IActionResult GetAll()
         {
             try
             {
-                var allTwitts = db.GetAll();
-                return Ok(allTwitts.ToList());
+                //var allTwitts = db.GetAll();
+                //return Ok(allTwitts.ToList());
+                return Ok("testt");
             }
             catch (Exception e)
             {
